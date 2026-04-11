@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String?
+  role           String    @default("CLIENT") // ADMIN or CLIENT
+  name           String?
+  emailVerified  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Invite {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  email     String?  // Optional: locked to specific email
+  role      String   @default("CLIENT")
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Site {
+  id               String       @id @default(uuid())
+  name             String
+  location         String
+  capacityMw       Float
+  modules          Int?
+  inverter         String?
+  mountType        String?
+  ppaRate          Float?
+  performanceRatio Float?
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  inspections      Inspection[]
+}
+
+model Inspection {
+  id               String     @id @default(uuid())
+  siteId           String
+  site             Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  date             DateTime
+  operator         String?
+  droneModel       String?
+  thermalSensor    String?
+  ambientTempC     Float?
+  humidityPercent  Float?
+  windSpeedMs      Float?
+  cloudCover       Float?
+  irradianceWm2    Float?
+  moduleTempC      Float?
+  emissivity       Float?
+  deltaTThreshold  Float?
+  annualPoa        Float?
+  ppaRate          Float?
+  status           String     @default("PENDING") // PENDING, COMPLETE
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  anomalies        Anomaly[]
+  reports          Report[]
+}
+
+model Anomaly {
+  id               String     @id @default(uuid())
+  inspectionId     String
+  inspection       Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  type             String
+  iecClass         String
+  deltaTC          Float
+  tAnomalyC        Float
+  tReferenceC      Float
+  locationString   String?
+  priority         String?
+  modulesAffected  Int        @default(1)
+  notes            String?
+  lat              Float?
+  lng              Float?
+  polygonPoints    String?    // Storing as JSON string
+  pixelCount       Int?
+  status           String     @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Report {
+  id               String     @id @default(uuid())
+  inspectionId     String
+  inspection       Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  status           String     @default("GENERATING") // GENERATING, READY
+  pdfUrl           String?
+  csvUrl           String?
+  kmlUrl           String?
+  mapUrl           String?
+  published        Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+}
