@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Map, BarChart2, FileText, MapPin, LogOut } from "lucide-react";
+import { LayoutDashboard, Map, BarChart2, FileText, MapPin, Calculator, ArrowLeftRight, Target, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const NAV_ITEMS = [
@@ -10,6 +10,9 @@ const NAV_ITEMS = [
   { name: "Sites", href: "/client/sites", icon: Map },
   { name: "Anomaly Map", href: "/client/map", icon: MapPin },
   { name: "Insights", href: "/client/insights", icon: BarChart2 },
+  { name: "Energy Estimator", href: "/client/estimator", icon: Calculator },
+  { name: "Repair Priority", href: "/client/repairs", icon: Target },
+  { name: "Audit Compare", href: "/client/compare", icon: ArrowLeftRight },
   { name: "Reports", href: "/client/reports", icon: FileText },
 ];
 
