@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Map, BarChart2, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, Map, BarChart2, FileText, MapPin, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const NAV_ITEMS = [
   { name: "Overview", href: "/client/dashboard", icon: LayoutDashboard },
   { name: "Sites", href: "/client/sites", icon: Map },
+  { name: "Anomaly Map", href: "/client/map", icon: MapPin },
   { name: "Insights", href: "/client/insights", icon: BarChart2 },
   { name: "Reports", href: "/client/reports", icon: FileText },
 ];

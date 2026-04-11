@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   ChevronRight, PenLine, CheckCircle2, AlertTriangle,
-  FileText, ArrowUpDown, ExternalLink, Loader2
+  FileText, ArrowUpDown, Loader2, Download, Map
 } from "lucide-react";
+
+const AnomalyMap = dynamic(() => import("@/components/map/AnomalyMap").then(m => m.AnomalyMap), { ssr: false });
 
 type Anomaly = {
   id: string; type: string; iecClass: string; deltaTC: number;
@@ -243,6 +246,42 @@ export default function InspectionDetailPage() {
                   </span>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Anomaly Map */}
+      {insp.anomalies.some(a => a.lat && a.lng) && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Map className="w-5 h-5 text-[#888]" />
+            <h2 className="text-lg font-semibold text-[#111]">Anomaly Map</h2>
+          </div>
+          <AnomalyMap anomalies={insp.anomalies} height="420px" />
+        </div>
+      )}
+
+      {/* Export Downloads */}
+      {hasReport && (
+        <div>
+          <h2 className="text-lg font-semibold text-[#111] mb-4">Export</h2>
+          <div className="flex flex-wrap gap-3">
+            {insp.reports.map((r) => (
+              <>
+                <a key={`pdf-${r.id}`} href={`/api/reports/${r.id}/pdf`} download
+                  className="flex items-center gap-2 border border-[#eaeaea] bg-white text-[#111] hover:bg-zinc-50 rounded-md px-4 py-2 text-[13px] font-medium transition-colors">
+                  <Download className="w-4 h-4" /> PDF Report
+                </a>
+                <a key={`csv-${r.id}`} href={`/api/reports/${r.id}/csv`} download
+                  className="flex items-center gap-2 border border-[#eaeaea] bg-white text-[#111] hover:bg-zinc-50 rounded-md px-4 py-2 text-[13px] font-medium transition-colors">
+                  <Download className="w-4 h-4" /> CSV Data
+                </a>
+                <a key={`kml-${r.id}`} href={`/api/reports/${r.id}/kml`} download
+                  className="flex items-center gap-2 border border-[#eaeaea] bg-white text-[#111] hover:bg-zinc-50 rounded-md px-4 py-2 text-[13px] font-medium transition-colors">
+                  <Download className="w-4 h-4" /> KML (Google Earth)
+                </a>
+              </>
             ))}
           </div>
         </div>

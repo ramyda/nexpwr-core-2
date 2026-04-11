@@ -41,3 +41,20 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(161, 161, 170, 0.8); /* zinc-400 */
 }
+
+/* Leaflet CSS */
+@import "leaflet/dist/leaflet.css";
+
+/* NexPwr Leaflet popup overrides */
+.nexpwr-popup .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 0;
+}
+.nexpwr-popup .leaflet-popup-content {
+  margin: 14px;
+}
+.nexpwr-popup .leaflet-popup-tip-container {
+  display: none;
+}
