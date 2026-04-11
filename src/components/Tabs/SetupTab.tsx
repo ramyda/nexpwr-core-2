@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { MODULE_BRANDS, MODULE_CATALOG, INVERTER_BRANDS, INVERTER_CATALOG, LOCATION_SUGGESTIONS, MODULE_TECH_OPTIONS } from "@/lib/productCatalog";
-import { Info, CheckCircle2, AlertTriangle, Upload, MapPin, FileText, Download } from "lucide-react";
+import { Info, CheckCircle2, AlertTriangle, Upload, MapPin, FileText, Download, ArrowRight } from "lucide-react";
 import { generateSiteSpecPDF } from "@/lib/pdfGenerator";
 
 function Tooltip({ text }: { text: string }) {
@@ -74,6 +74,7 @@ function Combobox({ value, onChange, options, placeholder, disabled }: {
 export function SetupTab() {
   const meta    = useAppStore((s) => s.plantMetadata);
   const setMeta = useAppStore((s) => s.setPlantMetadata);
+  const setInspectionMeta = useAppStore((s) => s.setInspectionMetadata);
   const geojsonRef = useRef<HTMLInputElement>(null);
   const [locationQuery, setLocationQuery] = useState(meta.locationText);
   const [showLocSuggestions, setShowLocSuggestions] = useState(false);
@@ -447,6 +448,16 @@ export function SetupTab() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ── Navigation ──────────────────────────────── */}
+      <div className="flex justify-end mt-8">
+        <button 
+          onClick={() => setInspectionMeta({ activeTab: 'inspection' })}
+          className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg shadow-lg transition-all"
+        >
+          Next: Inspection Configuration <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

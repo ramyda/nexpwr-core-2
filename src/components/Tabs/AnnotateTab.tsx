@@ -5,7 +5,7 @@ import { CanvasViewer } from "@/components/CanvasViewer";
 import { AnomalyTable } from "@/components/AnomalyTable";
 import { SummaryStats } from "@/components/SummaryStats";
 import { useAppStore } from "@/lib/store";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowRight } from "lucide-react";
 import { calcAnomaly } from "@/lib/utils";
 import { MiniMap } from "@/components/MiniMap";
 
@@ -15,6 +15,7 @@ export function AnnotateTab() {
   const anomalies = useAppStore((state) => state.anomalies);
   const plantMeta = useAppStore((state) => state.plantMetadata);
   const inspMeta = useAppStore((state) => state.inspectionMetadata);
+  const setInspectionMeta = useAppStore((state) => state.setInspectionMetadata);
 
   if (!thermalImageFile) {
      return <div className="flex items-center justify-center p-12 text-center text-zinc-500 bg-zinc-950/50 border border-zinc-900 rounded-2xl h-[500px]">Please complete the Inspection setup and upload a thermal map first.</div>;
@@ -85,6 +86,16 @@ export function AnnotateTab() {
             <AnomalyTable />
           </div>
           <MiniMap />
+
+          {/* ── Navigation ──────────────────────────────── */}
+          <div className="flex justify-end mt-4 shrink-0">
+            <button 
+              onClick={() => setInspectionMeta({ activeTab: 'report' })}
+              className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg shadow-lg transition-all w-full justify-center"
+            >
+              Next: Generate Final Report <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
   );

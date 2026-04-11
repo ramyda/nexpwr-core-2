@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { useAppStore } from "@/lib/store";
-import { Upload, AlertTriangle, Info, CheckCircle2, XCircle } from "lucide-react";
+import { Upload, AlertTriangle, Info, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { IEC_THERMAL_EQUILIBRIUM_STATEMENT } from "@/lib/constants";
 
 function Tooltip({ text }: { text: string }) {
@@ -262,6 +262,16 @@ export function InspectionTab() {
             {rgbImageFile ? `Loaded: ${(rgbImageFile as File).name}` : "Upload RGB (.tiff / .jpg)"}
           </button>
         </div>
+      </div>
+
+      {/* ── Navigation ──────────────────────────────── */}
+      <div className="flex justify-end mt-8">
+        <button 
+          onClick={() => setMeta({ activeTab: 'annotate' })}
+          className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg shadow-lg transition-all"
+        >
+          Next: Annotate Thermal Map <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
