@@ -1,13 +1,15 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("admin@nexpwr.com");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,17 +21,21 @@ export default function LoginPage() {
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
 
       if (res?.error) {
-        setError("Invalid credentials. Please try again.");
-      } else {
-        router.push("/admin/dashboard");
+        setError("Incorrect email or password. Please try again.");
+      } else if (res?.ok) {
+        // Read session to decide where to route
+        const session = await getSession();
+        const role = (session?.user as any)?.role;
+        router.push(role === "CLIENT" ? "/client/dashboard" : "/admin/dashboard");
+        router.refresh();
       }
     } catch (err: any) {
-      setError("An error occurred during sign in.");
+      setError("Connection error. Please try again in a few seconds.");
     } finally {
       setLoading(false);
     }
@@ -38,52 +44,80 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="w-full max-w-[400px] border border-zinc-900 bg-zinc-950 p-8 rounded-lg shadow-2xl">
+        {/* Brand */}
         <div className="mb-8 text-center">
           <div className="w-10 h-10 rounded bg-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
             <span className="font-bold text-white tracking-widest text-sm">NP</span>
           </div>
-          <h1 className="text-xl font-semibold text-zinc-100 flex items-center justify-center gap-2">
-            Sign in to NexPwr
-          </h1>
+          <h1 className="text-xl font-semibold text-zinc-100">Sign in to NexPwr</h1>
           <p className="text-sm text-zinc-500 mt-2">Enter your credentials to access your workspace</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="p-3 bg-red-950/30 border border-red-900/50 rounded text-red-500 text-xs text-center">{error}</div>}
-          <div className="space-y-2">
+          {/* Error */}
+          {error && (
+            <div className="p-3 bg-red-950/30 border border-red-900/50 rounded text-red-400 text-xs text-center">
+              {error}
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="space-y-1.5">
             <label className="text-sm font-medium text-zinc-400">Email Address</label>
             <input
               type="email"
               required
               disabled={loading}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors"
+              autoComplete="email"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-50"
               placeholder="admin@nexpwr.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-zinc-400">Password</label>
+
+          {/* Password + show/hide */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-zinc-400">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                disabled={loading}
+                autoComplete="current-password"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 pr-10 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-50"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
-            <input
-              type="password"
-              required
-              disabled={loading}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <p className="text-[11px] text-zinc-600 mt-1">
+              Default: <span className="font-mono text-zinc-500">password123</span>
+            </p>
           </div>
+
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-medium py-2.5 rounded-md text-sm transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-semibold py-2.5 rounded-md text-sm transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {loading ? "Signing in..." : "Continue"}
           </button>
         </form>
+
+        <p className="text-[11px] text-zinc-700 text-center mt-6">
+          NexPwr by Elytrus Pvt. Ltd. · Invite-only access
+        </p>
       </div>
     </div>
   );
