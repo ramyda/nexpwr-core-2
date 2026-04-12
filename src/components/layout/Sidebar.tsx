@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Map, Activity, PenTool, FileText, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Activity, PenTool, FileText, Settings, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
 const NAV_ITEMS = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Sites", href: "/admin/sites", icon: Map },
+  { name: "Clients", href: "/admin/clients", icon: Users },
   { name: "Inspections", href: "/admin/inspections", icon: Activity },
   { name: "Annotations", href: "/admin/annotations", icon: PenTool },
   { name: "Reports", href: "/admin/reports", icon: FileText },

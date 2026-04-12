@@ -9,6 +9,7 @@ import { useAppStore } from "@/lib/store";
 import { ArrowLeft, Save, Download, Navigation } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/BackButton";
 
 export default function WorkspacePage() {
   const router = useRouter();
@@ -31,9 +32,7 @@ export default function WorkspacePage() {
       {/* TOPBAR */}
       <div className="h-[48px] shrink-0 border-b border-[#333] bg-[#000] flex items-center justify-between px-4">
          <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="flex items-center gap-2 text-zinc-400 hover:text-zinc-100 transition-colors bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded">
-               <ArrowLeft className="w-4 h-4" /> Exit
-            </Link>
+            <BackButton className="mb-0 bg-transparent hover:bg-zinc-900 border-0" />
             <div className="flex items-center gap-2 bg-emerald-950/30 px-3 py-1 rounded-md border border-emerald-900/50">
                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                <span className="text-xs font-semibold text-emerald-100 uppercase tracking-widest">Live Annotator</span>

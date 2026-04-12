@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
 type InviteInfo = { email: string; role: string } | null;
 
-export default function InvitePage() {
-  const { token } = useParams<{ token: string }>();
+export default function InvitePage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = React.use(params);
   const router = useRouter();
   const [info, setInfo] = useState<InviteInfo>(null);
   const [invalid, setInvalid] = useState(false);

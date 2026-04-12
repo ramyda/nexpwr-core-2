@@ -1,25 +1,54 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { 
+      clientId, name, location, capacityMw, modules, 
+      inverter, mountType, ppaRate, performanceRatio 
+    } = body;
 
-  const sites = await prisma.site.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { _count: { select: { inspections: true } } },
-  });
-  return NextResponse.json(sites);
+    if (!clientId) {
+      return NextResponse.json({ error: "clientId is required" }, { status: 400 });
+    }
+
+    const site = await prisma.site.create({
+      data: {
+        clientId,
+        name,
+        location,
+        capacityMw: parseFloat(capacityMw),
+        modules: modules ? parseInt(modules) : null,
+        inverter,
+        mountType,
+        ppaRate: ppaRate ? parseFloat(ppaRate) : null,
+        performanceRatio: performanceRatio ? parseFloat(performanceRatio) : null,
+      }
+    });
+
+    return NextResponse.json(site);
+  } catch (error) {
+    console.error('Error creating site:', error);
+    return NextResponse.json({ error: "Failed to create site" }, { status: 500 });
+  }
 }
 
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as any).role !== "ADMIN")
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
-  const body = await req.json();
-  const site = await prisma.site.create({ data: body });
-  return NextResponse.json(site, { status: 201 });
+export async function GET() {
+  try {
+    const sites = await prisma.site.findMany({
+      include: {
+        client: true,
+        inspections: {
+          orderBy: { date: 'desc' },
+          take: 1
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return NextResponse.json(sites);
+  } catch (error) {
+    console.error('Error fetching sites:', error);
+    return NextResponse.json({ error: "Failed to fetch sites" }, { status: 500 });
+  }
 }

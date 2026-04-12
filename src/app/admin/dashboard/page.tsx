@@ -29,16 +29,16 @@ export default function AdminDashboard() {
         <KPICard title="Reports Generated" value="0" detail="In the last 30 days" />
       </div>
 
-      <div className="flex gap-3 border-t border-b border-[#eaeaea] py-5 my-8">
-        <button className="bg-[#111] text-white hover:bg-[#333] transition-colors rounded-md px-4 py-2 text-[13px] font-medium flex items-center gap-2">
+      <div className="flex gap-3 border-t border-b border-zinc-100 py-6 my-10">
+        <Link href="/admin/clients" className="bg-zinc-900 text-white hover:bg-zinc-800 transition-colors rounded-md px-5 py-2.5 text-[13px] font-semibold flex items-center gap-2 shadow-sm">
           <Plus className="w-4 h-4" /> New Site
-        </button>
-        <Link href="/admin/inspections/new" className="bg-white border border-[#eaeaea] text-[#111] hover:bg-zinc-50 transition-colors rounded-md px-4 py-2 text-[13px] font-medium flex items-center gap-2">
-          <UploadCloud className="w-4 h-4" /> Upload Inspection
         </Link>
-        <button className="bg-white border border-[#eaeaea] text-[#111] hover:bg-zinc-50 transition-colors rounded-md px-4 py-2 text-[13px] font-medium flex items-center gap-2">
-          <FileText className="w-4 h-4" /> Generate Report
+        <button className="bg-white border border-zinc-200 text-zinc-900 hover:bg-zinc-50 transition-colors rounded-md px-5 py-2.5 text-[13px] font-semibold flex items-center gap-2">
+          <UploadCloud className="w-4 h-4" /> Upload Inspection
         </button>
+        <Link href="/admin/reports" className="bg-white border border-zinc-200 text-zinc-900 hover:bg-zinc-50 transition-colors rounded-md px-5 py-2.5 text-[13px] font-semibold flex items-center gap-2">
+          <FileText className="w-4 h-4" /> Generate Report
+        </Link>
       </div>
 
       <div>

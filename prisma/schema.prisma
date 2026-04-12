@@ -32,8 +32,24 @@ model Invite {
   createdAt DateTime @default(now())
 }
 
+model Client {
+  id             String    @id @default(uuid())
+  name           String
+  company        String
+  email          String    @unique
+  phone          String?
+  address        String?
+  notes          String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  sites          Site[]
+}
+
 model Site {
   id               String       @id @default(uuid())
+  clientId         String?
+  client           Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
   name             String
   location         String
   capacityMw       Float
@@ -42,6 +58,81 @@ model Site {
   mountType        String?
   ppaRate          Float?
   performanceRatio Float?
+  moduleMakeModel  String? // Deprecated: Use manufacturer/model fields instead
+  moduleManufacturer String?
+  moduleModel      String?
+  moduleStcPower   Float?
+  moduleTech       String?
+  tempCoeffPmax    Float?
+  noct             Float?
+  modulesPerString Int?
+  annualPoa        Float?
+  
+  // Site Identification
+  latitude         Float?
+  longitude        Float?
+  commissioningDate DateTime?
+  siteOwner        String?
+  omContractor     String?
+  gridConnectionType String?
+  currency         String @default("USD")
+
+  // Plant Capacity
+  capacityAcMw     Float?
+  inverterCount    Int?
+  stringCount      Int?
+  combinerBoxCount Int?
+
+  // Module Specs (Extended)
+  cellCount        Int?
+  moduleEfficiency Float?
+  moduleLength     Float?
+  moduleWidth      Float?
+  moduleHeight     Float?
+  moduleWeight     Float?
+  tempCoeffIsc     Float?
+  tempCoeffVoc     Float?
+  bifacialityFactor Float?
+  panFileUrl       String?
+
+  // Inverter Specs
+  inverterManufacturer String?
+  inverterModel    String?
+  inverterType     String?
+  inverterRatedPowerAc Float?
+  mpptCount        Int?
+  maxDcInputVoltage Float?
+  mpptVoltageMin   Float?
+  mpptVoltageMax   Float?
+  ratedAcOutputVoltage Float?
+  inverterEfficiency Float?
+  communicationProtocol String?
+
+  // Mounting & Electrical
+  tiltAngle        Float?
+  azimuthAngle     Float?
+  trackerMakeModel String?
+  rowSpacing       Float?
+  dcCableSection   Float?
+  acCableSection   Float?
+  earthingSystem   String?
+  lightningProtection Boolean @default(false)
+  surgeProtection  Boolean @default(false)
+
+  // Performance & Financial
+  availabilityTarget Float?
+  degradationRate   Float?
+  ppaTerm           Int?
+  fitRate           Float?
+
+  // Inspection Parameters (Defaults)
+  minIrradianceThermography Float? @default(600)
+  minDeltaTThreshold Float? @default(3)
+  cameraEmissivity Float? @default(0.85)
+  preInspectionRunDuration Int? @default(60)
+  thermalCameraModel String?
+  dronePlatform    String?
+
   isActive         Boolean      @default(true)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Building2, Activity, AlertTriangle, FileText, Plus, ExternalLink, CheckCircle2, MoreHorizontal } from "lucide-react";
 
@@ -17,8 +17,8 @@ type Site = {
 
 type TabId = "Inspections" | "Anomalies" | "Reports" | "Map";
 
-export default function SiteDetailPage() {
-  const { id } = useParams();
+export default function SiteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const router = useRouter();
   const [site, setSite] = useState<Site | null>(null);
   const [loading, setLoading] = useState(true);

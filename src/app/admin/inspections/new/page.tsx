@@ -5,6 +5,7 @@ import { useAppStore } from "@/lib/store";
 import { ImageUpload } from "@/components/ImageUpload";
 import { ArrowRight, CheckCircle2, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { BackButton } from "@/components/shared/BackButton";
 
 export default function NewInspectionPage() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function NewInspectionPage() {
 
   return (
     <div className="max-w-[800px] mx-auto py-8">
+      <BackButton />
       <div className="mb-10">
         <h1 className="text-3xl font-semibold tracking-tight text-[#111]">Upload Inspection</h1>
         <p className="text-[15px] text-[#888] mt-2">Initialize a new aerial inspection namespace.</p>

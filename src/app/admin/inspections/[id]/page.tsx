@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
   ChevronRight, PenLine, CheckCircle2, AlertTriangle,
   FileText, ArrowUpDown, Loader2, Download, Map
 } from "lucide-react";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 
 const AnomalyMap = dynamic(() => import("@/components/map/AnomalyMap").then(m => m.AnomalyMap), { ssr: false });
 
@@ -34,8 +35,8 @@ const CLASS_BADGE: Record<string, string> = {
   UNC: "bg-zinc-100 text-zinc-500 border-zinc-200",
 };
 
-export default function InspectionDetailPage() {
-  const { id } = useParams();
+export default function InspectionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const router = useRouter();
   const [insp, setInsp] = useState<Inspection | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,14 +94,11 @@ export default function InspectionDetailPage() {
 
   return (
     <div className="space-y-8">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-[#888]">
-        <Link href="/admin/sites" className="hover:text-[#111]">Sites</Link>
-        <ChevronRight className="w-3.5 h-3.5" />
-        <Link href={`/admin/sites/${insp.site.id}`} className="hover:text-[#111]">{insp.site.name}</Link>
-        <ChevronRight className="w-3.5 h-3.5" />
-        <span className="text-[#111] font-medium font-mono">{new Date(insp.date).toLocaleDateString("en-GB")}</span>
-      </nav>
+      <Breadcrumb items={[
+        { label: "Clients", href: "/admin/clients" },
+        { label: insp.site.name, href: `/admin/clients/unknown/sites/${insp.site.id}` }, // We might need the clientId here
+        { label: new Date(insp.date).toLocaleDateString("en-GB") }
+      ]} />
 
       {/* Header */}
       <div className="flex items-center justify-between">

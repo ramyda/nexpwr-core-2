@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { FileText, Download, Eye, EyeOff, Loader2 } from "lucide-react";
+import { BackButton } from "@/components/shared/BackButton";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 
 type Report = {
   id: string; status: string; pdfUrl: string | null; published: boolean;
@@ -35,8 +37,13 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-8">
+      <BackButton />
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#111]">Reports</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-[#111] leading-none">Reports</h1>
+        <Breadcrumb items={[
+          { label: "Dashboard", href: "/admin/dashboard" }, 
+          { label: "Reports" }
+        ]} />
         <p className="text-[14px] text-[#888] mt-1">IEC 62446-3 inspection reports. Toggle publish to share with clients.</p>
       </div>
 
