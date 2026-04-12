@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // GET /api/invites/[token] — verify token validity
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
