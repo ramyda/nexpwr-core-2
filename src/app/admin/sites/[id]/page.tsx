@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Building2, Activity, AlertTriangle, FileText, Plus, ExternalLink, CheckCircle2, MoreHorizontal } from "lucide-react";

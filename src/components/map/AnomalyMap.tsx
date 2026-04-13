@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 
 type Anomaly = {
-  id: string; type: string; iecClass: string; deltaTC: number;
-  tAnomalyC: number; locationString: string | null;
+  id: string; type: string; iecClass: string; deltaT: number;
+  tAnomaly: number; locationString: string | null;
   priority: string | null; modulesAffected: number;
   lat: number | null; lng: number | null;
 };
@@ -90,8 +90,8 @@ export function AnomalyMap({ anomalies, height = "500px" }: AnomalyMapProps) {
             ${a.priority ? `<span style="background: #f3f4f6; color: #666; padding: 2px 8px; border-radius: 99px; font-size: 11px;">${a.priority}</span>` : ""}
           </div>
           <div style="color: #555; font-size: 12px; line-height: 1.6;">
-            <div><b>ΔT:</b> +${a.deltaTC.toFixed(1)}°C</div>
-            <div><b>T Anomaly:</b> ${a.tAnomalyC.toFixed(1)}°C</div>
+            <div><b>ΔT:</b> +${a.deltaT.toFixed(1)}°C</div>
+            <div><b>T Anomaly:</b> ${a.tAnomaly.toFixed(1)}°C</div>
             <div><b>Modules:</b> ${a.modulesAffected}</div>
             ${a.locationString ? `<div><b>Location:</b> ${a.locationString}</div>` : ""}
             <div style="color:#999;font-size:10px;margin-top:4px;font-family:ui-monospace,monospace;">${a.lat?.toFixed(5)}°, ${a.lng?.toFixed(5)}°</div>

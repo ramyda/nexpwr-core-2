@@ -87,6 +87,7 @@ interface AppState {
   updateAnomaly: (id: string, updates: Partial<Anomaly>) => void;
   deleteAnomaly: (id: string) => void;
   clearAnomalies: () => void;
+  setAnomalies: (anomalies: Anomaly[]) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -161,6 +162,7 @@ export const useAppStore = create<AppState>()(
           anomalies: state.anomalies.filter((a) => a.id !== id),
         })),
       clearAnomalies: () => set({ anomalies: [] }),
+      setAnomalies: (anomalies) => set({ anomalies }),
     }),
     {
       name: "solar-anomaly-raptor-v3",  // New key forces fresh state with new schema

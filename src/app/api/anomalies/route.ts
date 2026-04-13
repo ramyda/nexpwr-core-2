@@ -9,14 +9,24 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const inspectionId = url.searchParams.get("inspectionId");
+  const siteId = url.searchParams.get("site_id");
+  const clientId = url.searchParams.get("client_id");
 
-  const where = inspectionId ? { inspectionId } : {};
-  const anomalies = await prisma.anomaly.findMany({
+  const where: any = {};
+  if (inspectionId) where.inspectionId = inspectionId;
+  if (siteId) where.siteId = siteId;
+  if (clientId) where.clientId = clientId;
+
+  const annotations = await prisma.annotation.findMany({
     where,
-    orderBy: { deltaTC: "desc" },
-    include: { inspection: { select: { date: true, site: { select: { name: true } } } } },
+    orderBy: { deltaT: "desc" },
+    include: { 
+      inspection: { select: { date: true } },
+      site: { select: { name: true } },
+      client: { select: { company: true } }
+    },
   });
-  return NextResponse.json(anomalies);
+  return NextResponse.json(annotations);
 }
 
 export async function POST(req: NextRequest) {
@@ -25,6 +35,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
-  const anomaly = await prisma.anomaly.create({ data: body });
-  return NextResponse.json(anomaly, { status: 201 });
+  // Ensure the body maps to the new field names
+  const payload = {
+    ...body,
+    deltaT: body.deltaT || body.deltaTC || 0,
+    tAnomaly: body.tAnomaly || body.tAnomalyC || 0,
+    tReference: body.tReference || body.tReferenceC || 0,
+  };
+  
+  // Remove old keys if present
+  delete (payload as any).deltaTC;
+  delete (payload as any).tAnomalyC;
+  delete (payload as any).tReferenceC;
+
+  const annotation = await prisma.annotation.create({ data: payload });
+  return NextResponse.json(annotation, { status: 201 });
 }

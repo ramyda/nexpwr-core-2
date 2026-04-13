@@ -10,8 +10,8 @@ const AnomalyMap = dynamic(
 );
 
 type Anomaly = {
-  id: string; type: string; iecClass: string; deltaTC: number;
-  tAnomalyC: number; locationString: string | null; priority: string | null;
+  id: string; type: string; iecClass: string; deltaT: number;
+  tAnomaly: number; locationString: string | null; priority: string | null;
   modulesAffected: number; lat: number | null; lng: number | null;
   status: string;
 };
@@ -45,7 +45,6 @@ export default function ClientMapPage() {
         </p>
       </div>
 
-      {/* Filter bar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-1.5 text-[#888] text-sm">
           <Filter className="w-4 h-4" />
@@ -70,7 +69,6 @@ export default function ClientMapPage() {
         </div>
       </div>
 
-      {/* Map */}
       {loading ? (
         <div className="border border-[#eaeaea] rounded-lg bg-zinc-50 h-[480px] flex items-center justify-center text-[#888] text-sm">
           Loading map data...
@@ -87,11 +85,10 @@ export default function ClientMapPage() {
         <AnomalyMap anomalies={filtered} height="520px" />
       )}
 
-      {/* Anomaly coordinate table */}
       {geoCount > 0 && (
         <div>
           <h2 className="text-sm font-semibold text-[#111] mb-3">GPS Coordinates Table</h2>
-          <div className="border border-[#eaeaea] rounded-lg bg-white overflow-hidden">
+          <div className="border border-[#eaeaea] rounded-lg bg-white overflow-hidden shadow-sm">
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-[#eaeaea] bg-zinc-50/50">
@@ -116,7 +113,7 @@ export default function ClientMapPage() {
                         "bg-zinc-100 text-zinc-500 border-zinc-200"
                       }`}>{a.iecClass}</span>
                     </td>
-                    <td className="px-5 py-3 font-mono text-[#444]">+{a.deltaTC.toFixed(1)}°C</td>
+                    <td className="px-5 py-3 font-mono text-[#444]">+{a.deltaT.toFixed(1)}°C</td>
                     <td className="px-5 py-3 font-mono text-xs text-[#666]">{a.lat?.toFixed(6)}°</td>
                     <td className="px-5 py-3 font-mono text-xs text-[#666]">{a.lng?.toFixed(6)}°</td>
                     <td className="px-5 py-3 text-[#666]">{a.locationString || "—"}</td>

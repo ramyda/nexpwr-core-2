@@ -6,8 +6,8 @@ import { ArrowLeftRight, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide
 type Inspection = {
   id: string; date: string; operator: string | null; status: string;
   site: { name: string };
-  anomalies: {
-    id: string; type: string; iecClass: string; deltaTC: number;
+  annotations: {
+    id: string; type: string; iecClass: string; deltaT: number;
     locationString: string | null; modulesAffected: number;
   }[];
 };
@@ -39,14 +39,14 @@ export default function AuditComparePage() {
     setLoading(true);
     const res = await fetch(`/api/inspections/${id}`);
     const data = await res.json();
-    which === "A" ? setInspA(data) : setInspB(data);
+    which === "A" ? setInspA({ ...data, annotations: data.annotations || [] }) : setInspB({ ...data, annotations: data.annotations || [] });
     setLoading(false);
   };
 
   const totalLoss = (insp: Inspection | null) => {
     if (!insp) return 0;
-    return insp.anomalies.reduce((s, a) => {
-      const derateFraction = Math.min(a.deltaTC * 0.004, 0.95);
+    return (insp.annotations || []).reduce((s, a) => {
+      const derateFraction = Math.min(a.deltaT * 0.004, 0.95);
       return s + (a.modulesAffected * 400 * derateFraction * 1600 * 0.80) / 1000;
     }, 0);
   };
@@ -57,13 +57,14 @@ export default function AuditComparePage() {
 
   const getNew = () => {
     if (!inspA || !inspB) return [];
-    const aTypes = new Set(inspA.anomalies.map(a => a.type + a.locationString));
-    return inspB.anomalies.filter(a => !aTypes.has(a.type + a.locationString));
+    const aTypes = new Set((inspA.annotations || []).map(a => a.type + a.locationString));
+    return (inspB.annotations || []).filter(a => !aTypes.has(a.type + a.locationString));
   };
+  
   const getResolved = () => {
     if (!inspA || !inspB) return [];
-    const bTypes = new Set(inspB.anomalies.map(a => a.type + a.locationString));
-    return inspA.anomalies.filter(a => !bTypes.has(a.type + a.locationString));
+    const bTypes = new Set((inspB.annotations || []).map(a => a.type + a.locationString));
+    return (inspA.annotations || []).filter(a => !bTypes.has(a.type + a.locationString));
   };
 
   return (
@@ -73,7 +74,6 @@ export default function AuditComparePage() {
         <p className="text-[14px] text-[#888] mt-1">Compare two inspections side-by-side to track changes in anomaly count and energy loss.</p>
       </div>
 
-      {/* Selector row */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_48px_1fr] gap-4 items-center">
         <div>
           <label className="text-xs font-medium text-[#888] uppercase tracking-wide mb-1.5 block">Inspection A (Baseline)</label>
@@ -120,7 +120,6 @@ export default function AuditComparePage() {
 
       {inspA && inspB && !loading && (
         <>
-          {/* Summary delta cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
@@ -134,8 +133,8 @@ export default function AuditComparePage() {
                 desc: "In A, not in B",
               },
               {
-                label: "Net Anomaly Change", value: `${(inspB.anomalies.length - inspA.anomalies.length) >= 0 ? "+" : ""}${inspB.anomalies.length - inspA.anomalies.length}`,
-                icon: <Minus className="w-4 h-4" />, color: inspB.anomalies.length > inspA.anomalies.length ? "text-red-600" : "text-emerald-600",
+                label: "Net Anomaly Change", value: `${(inspB.annotations.length - inspA.annotations.length) >= 0 ? "+" : ""}${inspB.annotations.length - inspA.annotations.length}`,
+                icon: <Minus className="w-4 h-4" />, color: inspB.annotations.length > inspA.annotations.length ? "text-red-600" : "text-emerald-600",
                 desc: "B vs A",
               },
               {
@@ -157,7 +156,6 @@ export default function AuditComparePage() {
             ))}
           </div>
 
-          {/* Side-by-side table */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {([["A", inspA], ["B", inspB]] as const).map(([label, insp]) => (
               <div key={label} className="border border-[#eaeaea] rounded-lg bg-white overflow-hidden">
@@ -170,7 +168,7 @@ export default function AuditComparePage() {
                     <p className="text-xs text-[#888] mt-0.5 ml-8">{new Date(insp.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-bold font-mono text-[#111]">{insp.anomalies.length}</div>
+                    <div className="text-xl font-bold font-mono text-[#111]">{insp.annotations.length}</div>
                     <div className="text-xs text-[#888]">anomalies</div>
                   </div>
                 </div>
@@ -184,7 +182,7 @@ export default function AuditComparePage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#eaeaea]">
-                      {insp.anomalies.map(a => (
+                      {insp.annotations.map(a => (
                         <tr key={a.id} className="hover:bg-zinc-50">
                           <td className="px-4 py-2.5 font-medium text-[#111]">{a.type}</td>
                           <td className="px-4 py-2.5">
@@ -192,7 +190,7 @@ export default function AuditComparePage() {
                               {a.iecClass}
                             </span>
                           </td>
-                          <td className="px-4 py-2.5 font-mono text-[#444]">+{a.deltaTC.toFixed(1)}°C</td>
+                          <td className="px-4 py-2.5 font-mono text-[#444]">+{a.deltaT.toFixed(1)}°C</td>
                         </tr>
                       ))}
                     </tbody>
@@ -202,14 +200,13 @@ export default function AuditComparePage() {
             ))}
           </div>
 
-          {/* New / Resolved anomalies */}
           {getNew().length > 0 && (
             <div className="border border-red-200 bg-red-50 rounded-lg p-5">
               <h3 className="text-sm font-semibold text-red-700 mb-3">⚠ New Anomalies in Inspection B ({getNew().length})</h3>
               <div className="flex flex-wrap gap-2">
                 {getNew().map(a => (
                   <span key={a.id} className="bg-white border border-red-200 rounded-full px-3 py-1 text-xs font-medium text-red-700">
-                    {a.type} · +{a.deltaTC.toFixed(1)}°C
+                    {a.type} · +{a.deltaT.toFixed(1)}°C
                   </span>
                 ))}
               </div>
@@ -221,7 +218,7 @@ export default function AuditComparePage() {
               <div className="flex flex-wrap gap-2">
                 {getResolved().map(a => (
                   <span key={a.id} className="bg-white border border-emerald-200 rounded-full px-3 py-1 text-xs font-medium text-emerald-700">
-                    {a.type} · +{a.deltaTC.toFixed(1)}°C
+                    {a.type} · +{a.deltaT.toFixed(1)}°C
                   </span>
                 ))}
               </div>

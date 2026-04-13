@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, MapPin, Zap, Calendar, AlertTriangle, ChevronRight, Edit2, Phone, Mail, Globe } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { SlideOver } from "@/components/shared/SlideOver";
 import { BackButton } from "@/components/shared/BackButton";
+import { useActiveClient } from "@/lib/context/ActiveClientContext";
 
 interface Site {
   id: string;
@@ -33,7 +35,10 @@ interface Client {
 }
 
 export default function ClientSitesPage({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter();
+  const { setActiveSite } = useActiveClient();
   const { id } = React.use(params);
+  
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
@@ -54,6 +59,15 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     fetchData();
   }, [id]);
+
+  const handleSiteClick = (site: Site) => {
+    setActiveSite({
+      id: site.id,
+      name: site.name,
+      capacityMw: site.capacityMw
+    });
+    router.push(`/admin/clients/${id}/sites/${site.id}`);
+  };
 
   const handleAddSite = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -197,6 +211,10 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
                     </div>
                     <Link 
                       href={`/admin/clients/${client.id}/sites/${site.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSiteClick(site);
+                      }}
                       className="text-[12px] font-bold text-zinc-900 hover:underline flex items-center gap-1"
                     >
                       View Site <ChevronRight className="w-4 h-4" />

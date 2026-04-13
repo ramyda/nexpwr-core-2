@@ -44,6 +44,9 @@ model Client {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   sites          Site[]
+  inspections    Inspection[]
+  annotations    Annotation[]
+  reports        Report[]
 }
 
 model Site {
@@ -137,12 +140,16 @@ model Site {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   inspections      Inspection[]
+  annotations      Annotation[]
+  reports          Report[]
 }
 
 model Inspection {
   id               String     @id @default(uuid())
   siteId           String
   site             Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  clientId         String?
+  client           Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
   date             DateTime
   operator         String?
   droneModel       String?
@@ -157,44 +164,71 @@ model Inspection {
   deltaTThreshold  Float?
   annualPoa        Float?
   ppaRate          Float?
-  status           String     @default("PENDING") // PENDING, COMPLETE
+  
+  // File Storage
+  thermalFilePath  String?
+  visualFilePath   String?
+  thermalPreviewUrl String?
+  
+  status           String     @default("DRAFT") // DRAFT, UPLOADED, IN_PROGRESS, COMPLETE, PUBLISHED
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
-  anomalies        Anomaly[]
+  annotations      Annotation[]
   reports          Report[]
 }
 
-model Anomaly {
+model Annotation {
   id               String     @id @default(uuid())
   inspectionId     String
   inspection       Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  clientId         String?
+  client           Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  siteId           String?
+  site             Site?      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
   type             String
   iecClass         String
-  deltaTC          Float
-  tAnomalyC        Float
-  tReferenceC      Float
+  deltaT           Float
+  tAnomaly         Float
+  tReference       Float
   locationString   String?
   priority         String?
   modulesAffected  Int        @default(1)
   notes            String?
   lat              Float?
   lng              Float?
-  polygonPoints    String?    // Storing as JSON string
+  polygonPoints    Json?      // Storing as JSON
   pixelCount       Int?
-  status           String     @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED
+  status           String     @default("OPEN") // OPEN, RESOLVED
+  
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 }
 
 model Report {
-  id               String     @id @default(uuid())
-  inspectionId     String
-  inspection       Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
-  status           String     @default("GENERATING") // GENERATING, READY
-  pdfUrl           String?
-  csvUrl           String?
-  kmlUrl           String?
-  mapUrl           String?
-  published        Boolean    @default(false)
-  createdAt        DateTime   @default(now())
+  id                String     @id @default(uuid())
+  inspectionId      String
+  inspection        Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  clientId          String?
+  client            Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  siteId            String?
+  site             Site?      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  status            String     @default("GENERATING") // GENERATING, READY
+  pdfUrl            String?
+  csvUrl            String?
+  kmlUrl            String?
+  mapPngUrl         String?
+  
+  generatedAt       DateTime?
+  publishedAt       DateTime?
+  publishedToClient Boolean    @default(false)
+  
+  createdAt         DateTime   @default(now())
+}
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
 }

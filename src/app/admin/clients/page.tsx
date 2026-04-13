@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, Users, Search, MoreHorizontal, ExternalLink, Mail, Phone, MapPin, AlertCircle } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { SlideOver } from "@/components/shared/SlideOver";
 import { BackButton } from "@/components/shared/BackButton";
+import { useActiveClient } from "@/lib/context/ActiveClientContext";
 
 interface Client {
   id: string;
@@ -26,6 +28,8 @@ interface Client {
 }
 
 export default function ClientsPage() {
+  const router = useRouter();
+  const { setActiveClient } = useActiveClient();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +76,15 @@ export default function ClientsPage() {
   useEffect(() => {
     fetchClients();
   }, []);
+
+  const handleClientClick = (client: Client) => {
+    setActiveClient({
+      id: client.id,
+      name: client.name,
+      company: client.company
+    });
+    router.push(`/admin/clients/${client.id}/sites`);
+  };
 
   const handleAddClient = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -145,7 +158,7 @@ export default function ClientsPage() {
                 <th className="px-6 py-3 text-[12px] font-semibold text-zinc-500 uppercase tracking-wider">Contact</th>
                 <th className="px-6 py-3 text-[12px] font-semibold text-zinc-500 uppercase tracking-wider text-center">Sites</th>
                 <th className="px-6 py-3 text-[12px] font-semibold text-zinc-500 uppercase tracking-wider">Last Inspection</th>
-                <th className="px-6 py-3 text-[12px] font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-12 text-[12px] font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-[12px] font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
@@ -154,8 +167,8 @@ export default function ClientsPage() {
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-zinc-500 text-sm">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
-                      Loading clients...
+                       <div className="w-5 h-5 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin"></div>
+                       Loading clients...
                     </div>
                   </td>
                 </tr>
@@ -197,7 +210,7 @@ export default function ClientsPage() {
                     <tr 
                       key={client.id} 
                       className="hover:bg-zinc-50/80 transition-colors cursor-pointer group"
-                      onClick={() => window.location.href = `/admin/clients/${client.id}/sites`}
+                      onClick={() => handleClientClick(client)}
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -282,25 +295,6 @@ export default function ClientsPage() {
               className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-md text-[13px] outline-none focus:ring-1 focus:ring-zinc-900 transition-all placeholder:text-zinc-400"
             />
           </div>
-          <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700">Address</label>
-            <textarea 
-              name="address" 
-              rows={2}
-              placeholder="Full business address"
-              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-md text-[13px] outline-none focus:ring-1 focus:ring-zinc-900 transition-all placeholder:text-zinc-400 resize-none"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[13px] font-medium text-zinc-700">Notes</label>
-            <textarea 
-              name="notes" 
-              rows={3}
-              placeholder="Any internal notes about this client..."
-              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-md text-[13px] outline-none focus:ring-1 focus:ring-zinc-900 transition-all placeholder:text-zinc-400 resize-none"
-            />
-          </div>
-
           <div className="pt-4 flex items-center gap-3">
              <button 
                type="button" 

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { useAppStore } from "@/lib/store";
 
-export function MiniMap() {
+export function MiniMap({ inspection }: { inspection?: any }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const anomalies = useAppStore((state) => state.anomalies);
   const leafletLoaded = useRef(false);
@@ -42,23 +42,39 @@ export function MiniMap() {
   const initMap = () => {
     if (!leafletLoaded.current || !mapRef.current || mapInstance.current) return;
     
-    // Default center or derived from anomalies
-    let center: [number, number] = [0, 0];
-    const anomaliesWithGPS = anomalies.filter(A => A.lat !== undefined && A.lng !== undefined);
-    if (anomaliesWithGPS.length > 0) {
-       const sumLat = anomaliesWithGPS.reduce((s, a) => s + (a.lat || 0), 0);
-       const sumLng = anomaliesWithGPS.reduce((s, a) => s + (a.lng || 0), 0);
-       center = [sumLat / anomaliesWithGPS.length, sumLng / anomaliesWithGPS.length];
+    const L = (window as any).L;
+    
+    // Get coords from site data
+    const siteLat = inspection?.site?.latitude;
+    const siteLng = inspection?.site?.longitude;
+    
+    let center: [number, number];
+    let zoom = 19;
+    
+    if (siteLat && siteLng) {
+      center = [siteLat, siteLng];
+      zoom = 17;
     } else {
-       center = [30.2672, -97.7431]; // Default dummy
+      // Fallback: world view centered on India if no GPS
+      center = [20.5937, 78.9629];
+      zoom = 4;
     }
 
-    const L = (window as any).L;
-    const map = L.map(mapRef.current).setView(center, 19);
+    const map = L.map(mapRef.current).setView(center, zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 22,
       attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    if (siteLat && siteLng) {
+      L.marker([siteLat, siteLng])
+        .addTo(map)
+        .bindPopup(inspection.site.name || "Site Location");
+    }
+
+    mapInstance.current = map;
+    updateMarkers();
+  };
 
     mapInstance.current = map;
     updateMarkers();

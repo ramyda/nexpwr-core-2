@@ -4,19 +4,35 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, Activity, PenTool, FileText, Settings, LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-
-const NAV_ITEMS = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Clients", href: "/admin/clients", icon: Users },
-  { name: "Inspections", href: "/admin/inspections", icon: Activity },
-  { name: "Annotations", href: "/admin/annotations", icon: PenTool },
-  { name: "Reports", href: "/admin/reports", icon: FileText },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
-];
+import { ClientSwitcher } from "./ClientSwitcher";
+import { useActiveClient } from "@/lib/context/ActiveClientContext";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { activeClient, activeSite, activeInspection } = useActiveClient();
+
+  const getAnnotationsHref = () => {
+    if (activeInspection) return `/admin/workspace/${activeInspection.id}`;
+    if (activeSite) return `/admin/inspections?site_id=${activeSite.id}`;
+    if (activeClient) return `/admin/inspections?client_id=${activeClient.id}`;
+    return "/admin/annotations";
+  };
+
+  const getReportsHref = () => {
+    if (activeSite) return `/admin/reports?site_id=${activeSite.id}`;
+    if (activeClient) return `/admin/reports?client_id=${activeClient.id}`;
+    return "/admin/reports";
+  };
+
+  const navItems = [
+    { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { name: "Clients", href: "/admin/clients", icon: Users },
+    { name: "Inspections", href: "/admin/inspections", icon: Activity },
+    { name: "Annotations", href: getAnnotationsHref(), icon: PenTool },
+    { name: "Reports", href: getReportsHref(), icon: FileText },
+    { name: "Settings", href: "/admin/settings", icon: Settings },
+  ];
 
   return (
     <div className="w-[240px] flex-shrink-0 bg-[#000000] border-r border-[#333333] h-screen flex flex-col pt-6 pb-6 text-[#ededed]">
@@ -28,13 +44,15 @@ export function Sidebar() {
         <span className="text-sm font-semibold tracking-wide">NexPwr</span>
       </div>
 
+      <ClientSwitcher />
+
       {/* Nav */}
       <nav className="flex-1 px-4 space-y-1">
-        {NAV_ITEMS.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href.split('?')[0]);
           return (
             <Link
-              key={item.href}
+              key={item.name}
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 text-[13px] rounded-md transition-colors ${
                 isActive 

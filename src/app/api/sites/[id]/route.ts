@@ -14,13 +14,11 @@ export async function GET(
         inspections: {
           include: {
             _count: {
-              select: { anomalies: true }
+              select: { annotations: true }
             }
           },
           orderBy: { date: 'desc' }
         },
-        // We will fetch anomalies and reports separately if needed, 
-        // but for now let's get them for the tabs
       }
     });
 
@@ -28,12 +26,10 @@ export async function GET(
       return NextResponse.json({ error: "Site not found" }, { status: 404 });
     }
 
-    // Get all anomalies across all inspections
-    const allAnomalies = await prisma.anomaly.findMany({
+    // Get all annotations across all inspections
+    const allAnnotations = await prisma.annotation.findMany({
       where: {
-        inspection: {
-          siteId: id
-        }
+        siteId: id
       },
       include: {
         inspection: true
@@ -44,9 +40,7 @@ export async function GET(
     // Get all reports across all inspections
     const allReports = await prisma.report.findMany({
       where: {
-        inspection: {
-          siteId: id
-        }
+        siteId: id
       },
       include: {
         inspection: true
@@ -56,7 +50,7 @@ export async function GET(
 
     return NextResponse.json({
       ...site,
-      allAnomalies,
+      allAnnotations,
       allReports
     });
   } catch (error) {
@@ -71,6 +65,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   try {
+    const body = await req.json();
     const {
       name, location, capacityMw, modules, inverter, mountType,
       ppaRate, performanceRatio, moduleManufacturer, moduleModel,
@@ -88,7 +83,7 @@ export async function PATCH(
       surgeProtection, availabilityTarget, degradationRate, ppaTerm, fitRate,
       minIrradianceThermography, minDeltaTThreshold, cameraEmissivity,
       preInspectionRunDuration, thermalCameraModel, dronePlatform
-    } = await req.json();
+    } = body;
 
     const site = await prisma.site.update({
       where: { id },

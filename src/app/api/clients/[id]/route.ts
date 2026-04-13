@@ -16,7 +16,9 @@ export async function GET(
               orderBy: { date: 'desc' },
               take: 1,
               include: {
-                anomalies: true
+                _count: {
+                  select: { annotations: true }
+                }
               }
             }
           },
