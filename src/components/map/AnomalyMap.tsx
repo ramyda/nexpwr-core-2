@@ -83,24 +83,24 @@ export function AnomalyMap({ anomalies, height = "500px" }: AnomalyMapProps) {
       });
 
       const popup = `
-        <div style="font-family: ui-sans-serif, sans-serif; min-width: 200px;">
-          <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px; color: #111;">${a.type}</div>
+        <div style="font-family: ui-sans-serif, sans-serif; min-width: 200px; color: #f4f4f5; background: #09090b;">
+          <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px; color: #fafafa;">${a.type}</div>
           <div style="display: flex; gap: 6px; margin-bottom: 8px;">
             <span style="background: ${color}; color: white; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700;">${a.iecClass}</span>
-            ${a.priority ? `<span style="background: #f3f4f6; color: #666; padding: 2px 8px; border-radius: 99px; font-size: 11px;">${a.priority}</span>` : ""}
+            ${a.priority ? `<span style="background: #27272a; color: #a1a1aa; padding: 2px 8px; border-radius: 99px; font-size: 11px;">${a.priority}</span>` : ""}
           </div>
-          <div style="color: #555; font-size: 12px; line-height: 1.6;">
-            <div><b>ΔT:</b> +${a.deltaT.toFixed(1)}°C</div>
-            <div><b>T Anomaly:</b> ${a.tAnomaly.toFixed(1)}°C</div>
-            <div><b>Modules:</b> ${a.modulesAffected}</div>
-            ${a.locationString ? `<div><b>Location:</b> ${a.locationString}</div>` : ""}
-            <div style="color:#999;font-size:10px;margin-top:4px;font-family:ui-monospace,monospace;">${a.lat?.toFixed(5)}°, ${a.lng?.toFixed(5)}°</div>
+          <div style="color: #a1a1aa; font-size: 12px; line-height: 1.6;">
+            <div><b style="color: #d4d4d8;">ΔT:</b> +${a.deltaT.toFixed(1)}°C</div>
+            <div><b style="color: #d4d4d8;">T Anomaly:</b> ${a.tAnomaly.toFixed(1)}°C</div>
+            <div><b style="color: #d4d4d8;">Modules:</b> ${a.modulesAffected}</div>
+            ${a.locationString ? `<div><b style="color: #d4d4d8;">Location:</b> ${a.locationString}</div>` : ""}
+            <div style="color:#52525b;font-size:10px;margin-top:4px;font-family:ui-monospace,monospace;">${a.lat?.toFixed(5)}°, ${a.lng?.toFixed(5)}°</div>
           </div>
         </div>`;
 
       L.marker([a.lat!, a.lng!], { icon: svgIcon })
         .addTo(map)
-        .bindPopup(popup, { maxWidth: 280, className: "nexpwr-popup" });
+        .bindPopup(popup, { maxWidth: 280, className: "nexpwr-dark-popup" });
     });
 
     // Fit bounds to all markers
@@ -118,19 +118,19 @@ export function AnomalyMap({ anomalies, height = "500px" }: AnomalyMapProps) {
   }, [anomalies]);
 
   return (
-    <div className="relative rounded-lg overflow-hidden border border-[#eaeaea]">
+    <div className="relative rounded-lg overflow-hidden border border-zinc-800">
       {/* Legend overlay */}
-      <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-sm border border-[#eaeaea] rounded-lg p-3 shadow-sm">
-        <div className="text-[10px] font-semibold text-[#888] uppercase tracking-wide mb-2">IEC Class</div>
+      <div className="absolute top-3 right-3 z-[1000] bg-zinc-950/90 backdrop-blur-md border border-zinc-800 rounded-lg p-3 shadow-2xl">
+        <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 border-b border-zinc-800 pb-1">IEC Class Registry</div>
         {Object.entries(CLASS_HEX).filter(([cls]) => cls !== "UNC").map(([cls, color]) => (
-          <div key={cls} className="flex items-center gap-2 mb-1">
-            <div className="w-3 h-3 rounded-full border border-white shadow-sm" style={{ background: color }} />
-            <span className="text-xs font-mono text-[#444]">{cls}</span>
+          <div key={cls} className="flex items-center gap-2 mb-1.5">
+            <div className="w-2.5 h-2.5 rounded-full border border-black shadow-sm" style={{ background: color }} />
+            <span className="text-[10px] font-bold font-mono text-zinc-400">{cls}</span>
           </div>
         ))}
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full border border-white shadow-sm bg-purple-600" />
-          <span className="text-xs font-mono text-[#444]">UNC</span>
+        <div className="flex items-center gap-2 mt-2 pt-1 border-t border-zinc-800/50">
+          <div className="w-2.5 h-2.5 rounded-full border border-black shadow-sm bg-purple-600" />
+          <span className="text-[10px] font-bold font-mono text-zinc-500 italic">UNC</span>
         </div>
       </div>
       <div ref={mapRef} style={{ height }} />

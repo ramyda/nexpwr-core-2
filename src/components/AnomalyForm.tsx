@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ANOMALY_TYPE_NAMES, SEVERITY_COLORS, IEC_SEVERITY_CLASSES } from "@/lib/constants";
-import { getSeverityFromDelta } from "@/lib/utils";
+import { getSeverityFromDelta } from "@/lib/constants";
 import { X, AlertTriangle, Info } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { calcAnomaly } from "@/lib/utils";

@@ -103,7 +103,7 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
     <div className="space-y-8">
       <BackButton />
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 leading-none">{client.company}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 leading-none">{client.company}</h1>
         <Breadcrumb items={[
           { label: "Clients", href: "/admin/clients" }, 
           { label: client.name }
@@ -111,27 +111,27 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
       </div>
 
       {/* Client Info Card */}
-      <div className="bg-white border border-zinc-200 rounded-lg p-5 flex items-center justify-between shadow-sm">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-5">
           <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center text-xl font-bold text-white shadow-lg">
-             {client.name.substring(0, 1).toUpperCase()}
+             {client?.name ? client.name.substring(0, 1).toUpperCase() : "?"}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-1">
              <div className="flex flex-col">
-               <span className="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Contact Name</span>
-               <span className="text-[14px] font-medium text-zinc-900">{client.name}</span>
+               <span className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase font-bold tracking-wider">Contact Name</span>
+               <span className="text-[14px] font-medium text-zinc-900 dark:text-zinc-50">{client.name}</span>
              </div>
              <div className="flex flex-col">
-               <span className="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Email</span>
-               <span className="text-[14px] font-medium text-zinc-900 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-zinc-400" /> {client.email}</span>
+               <span className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase font-bold tracking-wider">Email</span>
+               <span className="text-[14px] font-medium text-zinc-900 dark:text-zinc-50 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" /> {client.email}</span>
              </div>
              <div className="flex flex-col">
-               <span className="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Phone</span>
-               <span className="text-[14px] font-medium text-zinc-900 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-zinc-400" /> {client.phone || "---"}</span>
+               <span className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase font-bold tracking-wider">Phone</span>
+               <span className="text-[14px] font-medium text-zinc-900 dark:text-zinc-50 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" /> {client.phone || "---"}</span>
              </div>
              <div className="flex flex-col">
-               <span className="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Company</span>
-               <span className="text-[14px] font-medium text-zinc-900 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-zinc-400" /> {client.company}</span>
+               <span className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase font-bold tracking-wider">Company</span>
+               <span className="text-[14px] font-medium text-zinc-900 dark:text-zinc-50 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" /> {client.company}</span>
              </div>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
 
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-zinc-900">Sites</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Sites</h2>
           <button 
             onClick={() => setIsSlideOverOpen(true)}
             className="bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2 rounded-md text-[13px] font-medium transition-colors flex items-center gap-2 shadow-sm shadow-emerald-600/10"
@@ -151,10 +151,10 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
           </button>
         </div>
 
-        {client.sites.length === 0 ? (
-          <div className="bg-zinc-50/50 border-2 border-dashed border-zinc-200 rounded-xl p-12 text-center">
-            <MapPin className="w-10 h-10 text-zinc-300 mx-auto mb-4" />
-            <h3 className="text-base font-medium text-zinc-900 mb-1">No sites for this client yet</h3>
+        {(client?.sites ?? []).length === 0 ? (
+          <div className="bg-zinc-50/50 dark:bg-zinc-950/50 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl p-12 text-center">
+            <MapPin className="w-10 h-10 text-zinc-300 dark:text-zinc-700 mx-auto mb-4" />
+            <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-50 mb-1">No sites for this client yet</h3>
             <p className="text-sm text-zinc-500 mb-6">Create a site workspace to start managing inspections.</p>
             <button 
               onClick={() => setIsSlideOverOpen(true)}
@@ -165,13 +165,13 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {client.sites.map((site) => {
+            {(client?.sites ?? []).map((site) => {
               const lastInspection = site.inspections[0];
               const anomalies = lastInspection?.anomalies || [];
               const c4Count = anomalies.filter(a => a.iecClass === 'C4').length;
 
               return (
-                <div key={site.id} className="bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
+                <div key={site.id} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
                   <div className="p-5 flex-1">
                     <div className="flex items-start justify-between mb-4">
                       <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
@@ -181,31 +181,31 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
                         {site.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
-                    <h3 className="text-[16px] font-bold text-zinc-900 group-hover:text-emerald-700 transition-colors mb-1">{site.name}</h3>
-                    <p className="text-[13px] text-zinc-500 flex items-center gap-1.5 mb-6">
+                    <h3 className="text-[16px] font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-emerald-700 transition-colors mb-1">{site.name}</h3>
+                    <p className="text-[13px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 mb-6">
                       <MapPin className="w-3.5 h-3.5" /> {site.location}
                     </p>
 
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-50">
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-50 dark:border-zinc-900">
                        <div className="flex flex-col">
-                         <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">Capacity</span>
-                         <span className="text-[13px] font-medium text-zinc-900">{site.capacityMw} MW DC</span>
+                         <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Capacity</span>
+                         <span className="text-[13px] font-medium text-zinc-900 dark:text-zinc-50">{site.capacityMw} MW DC</span>
                        </div>
                        <div className="flex flex-col">
-                         <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">Last Audit</span>
-                         <span className="text-[13px] font-medium text-zinc-900 flex items-center gap-1.5 text-nowrap">
+                         <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Last Audit</span>
+                         <span className="text-[13px] font-medium text-zinc-900 dark:text-zinc-50 flex items-center gap-1.5 text-nowrap">
                            <Calendar className="w-3.5 h-3.5" /> {lastInspection ? new Date(lastInspection.date).toLocaleDateString() : "---"}
                          </span>
                        </div>
                     </div>
                   </div>
 
-                  <div className="bg-zinc-50 px-5 py-4 border-t border-zinc-100 flex items-center justify-between">
+                   <div className="bg-zinc-50 dark:bg-zinc-900/50 px-5 py-4 border-t border-zinc-100 dark:border-zinc-900 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                       <div className={`p-1.5 rounded-md ${c4Count > 0 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                       <div className={`p-1.5 rounded-md ${c4Count > 0 ? 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}`}>
                          <AlertTriangle className="w-4 h-4" />
                        </div>
-                       <span className="text-[13px] font-semibold text-zinc-700">
+                       <span className="text-[13px] font-semibold text-zinc-700 dark:text-zinc-300">
                          {anomalies.length} Anomalies
                        </span>
                     </div>
@@ -215,7 +215,7 @@ export default function ClientSitesPage({ params }: { params: Promise<{ id: stri
                         e.preventDefault();
                         handleSiteClick(site);
                       }}
-                      className="text-[12px] font-bold text-zinc-900 hover:underline flex items-center gap-1"
+                      className="text-[12px] font-bold text-zinc-900 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline flex items-center gap-1"
                     >
                       View Site <ChevronRight className="w-4 h-4" />
                     </Link>

@@ -494,7 +494,7 @@ export default function SiteDetailPage({ params }: { params: Promise<{ id: strin
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
-              {tab.id === "inspections" && site.inspections.length > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 text-[10px]">{site.inspections.length}</span>}
+              {tab.id === "inspections" && (site.inspections?.length ?? 0) > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 text-[10px]">{site.inspections.length}</span>}
             </button>
           ))}
         </nav>
@@ -528,7 +528,7 @@ export default function SiteDetailPage({ params }: { params: Promise<{ id: strin
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {site.inspections.length === 0 ? (
+                  {(!site.inspections || site.inspections.length === 0) ? (
                     <tr><td colSpan={7} className="px-6 py-12 text-center text-zinc-500">No inspections found for this site.</td></tr>
                   ) : (
                     site.inspections.map((insp) => (
@@ -570,23 +570,23 @@ export default function SiteDetailPage({ params }: { params: Promise<{ id: strin
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-white border border-zinc-200 p-4 rounded-lg">
                 <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">Total</span>
-                <p className="text-xl font-bold text-zinc-900">{site.allAnomalies.length}</p>
+                <p className="text-xl font-bold text-zinc-900">{site.allAnomalies?.length || 0}</p>
               </div>
               <div className="bg-white border border-zinc-200 p-4 rounded-lg">
                 <span className="text-[11px] text-red-400 font-bold uppercase tracking-wider">C4</span>
-                <p className="text-xl font-bold text-red-600">{site.allAnomalies.filter(a => a.iecClass === 'C4').length}</p>
+                <p className="text-xl font-bold text-red-600">{site.allAnomalies?.filter(a => a.iecClass === 'C4').length || 0}</p>
               </div>
               <div className="bg-white border border-zinc-200 p-4 rounded-lg">
                 <span className="text-[11px] text-orange-400 font-bold uppercase tracking-wider">C3</span>
-                <p className="text-xl font-bold text-orange-600">{site.allAnomalies.filter(a => a.iecClass === 'C3').length}</p>
+                <p className="text-xl font-bold text-orange-600">{site.allAnomalies?.filter(a => a.iecClass === 'C3').length || 0}</p>
               </div>
               <div className="bg-white border border-zinc-200 p-4 rounded-lg">
                 <span className="text-[11px] text-yellow-500 font-bold uppercase tracking-wider">C2</span>
-                <p className="text-xl font-bold text-yellow-600">{site.allAnomalies.filter(a => a.iecClass === 'C2').length}</p>
+                <p className="text-xl font-bold text-yellow-600">{site.allAnomalies?.filter(a => a.iecClass === 'C2').length || 0}</p>
               </div>
               <div className="bg-white border border-zinc-200 p-4 rounded-lg">
                 <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider">C1</span>
-                <p className="text-xl font-bold text-zinc-600">{site.allAnomalies.filter(a => a.iecClass === 'C1').length}</p>
+                <p className="text-xl font-bold text-zinc-600">{site.allAnomalies?.filter(a => a.iecClass === 'C1').length || 0}</p>
               </div>
             </div>
 
@@ -605,7 +605,7 @@ export default function SiteDetailPage({ params }: { params: Promise<{ id: strin
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 italic">
-                  {site.allAnomalies.length === 0 ? (
+                  {(!site.allAnomalies || site.allAnomalies.length === 0) ? (
                     <tr><td colSpan={8} className="px-6 py-12 text-center text-zinc-400 not-italic">No anomalies found.</td></tr>
                   ) : (
                     site.allAnomalies.map((a) => (

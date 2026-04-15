@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useAppStore } from "@/lib/store";
-import { SEVERITY_STROKE_COLORS } from "@/lib/constants";
+import { useAppStore, Anomaly } from "@/lib/store";
+import { SeverityType, SEVERITY_STROKE_COLORS } from "@/lib/constants";
 import { AnomalyForm } from "./AnomalyForm";
 import { ZoomIn, ZoomOut, Maximize, Minimize, Camera, RefreshCw, Hand, MousePointer2 } from "lucide-react";
 import * as turf from "@turf/turf";
 
 interface CanvasViewerProps {
-  inspection: any;
-  isThermalView: boolean;
+  inspection?: any;
+  isThermalView?: boolean;
+  imageFile?: File | null;
 }
 
 interface Point { x: number; y: number; }
 
-export function CanvasViewer({ inspection, isThermalView }: CanvasViewerProps) {
+export function CanvasViewer({ inspection, isThermalView, imageFile }: CanvasViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<HTMLDivElement>(null);
@@ -49,10 +50,18 @@ export function CanvasViewer({ inspection, isThermalView }: CanvasViewerProps) {
     
     // Choose URL based on view and availability
     let url = "";
-    if (isThermalView) {
-      url = inspection.thermalPreviewUrl || inspection.thermalFilePath || "";
-    } else {
-      url = inspection.visualFilePath || "";
+    if (imageFile) {
+      url = URL.createObjectURL(imageFile);
+    } else if (inspection) {
+      const rawUrl = isThermalView 
+        ? (inspection.thermalPreviewUrl || inspection.thermalFilePath || "")
+        : (inspection.visualFilePath || "");
+      
+      if (rawUrl && !rawUrl.startsWith("http") && !rawUrl.startsWith("blob:")) {
+        url = `/api/files/${encodeURIComponent(rawUrl)}`;
+      } else {
+        url = rawUrl;
+      }
     }
 
     if (!url) {
@@ -217,7 +226,7 @@ export function CanvasViewer({ inspection, isThermalView }: CanvasViewerProps) {
     ctx.drawImage(imageObj, 0, 0);
 
     // Draw existing anomalies
-    anomalies.forEach((ann: any) => {
+    anomalies.forEach((ann: Anomaly) => {
       const box = ann.box;
       if (!box) return;
       ctx.strokeStyle = SEVERITY_STROKE_COLORS[ann.severity] || "#FF0000";

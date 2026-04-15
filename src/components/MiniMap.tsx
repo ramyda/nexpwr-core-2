@@ -76,10 +76,6 @@ export function MiniMap({ inspection }: { inspection?: any }) {
     updateMarkers();
   };
 
-    mapInstance.current = map;
-    updateMarkers();
-  };
-
   const updateMarkers = () => {
     if (!mapInstance.current || !leafletLoaded.current) return;
     const L = (window as any).L;

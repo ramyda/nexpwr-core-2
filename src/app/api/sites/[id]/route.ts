@@ -50,7 +50,7 @@ export async function GET(
 
     return NextResponse.json({
       ...site,
-      allAnnotations,
+      allAnomalies: allAnnotations,
       allReports
     });
   } catch (error) {

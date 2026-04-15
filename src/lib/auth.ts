@@ -40,11 +40,53 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        // Resolve the client org linked to this user email
+        let clientId: string | null = null;
+        if (user.role === "CLIENT") {
+          // First check if user has explicit clientId FK
+          const fullUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { clientId: true },
+          });
+
+          let targetClientId = fullUser?.clientId;
+
+          if (!targetClientId) {
+            // Fallback: match by email to Client.email
+            const clientRecord = await prisma.client.findUnique({
+              where: { email: user.email },
+              select: { id: true },
+            });
+            if (clientRecord) targetClientId = clientRecord.id;
+          }
+
+          if (!targetClientId) {
+            throw new Error("Linked client account not found");
+          }
+
+          // Security Guard: Check if client is active
+          const clientStatus = await prisma.client.findUnique({
+            where: { id: targetClientId },
+            select: { isActive: true, name: true }
+          });
+
+          if (!clientStatus) {
+            throw new Error("Client account has been deleted");
+          }
+
+          if (!clientStatus.isActive) {
+            throw new Error("Your account has been suspended. Please contact support.");
+          }
+
+          clientId = targetClientId;
+        }
+
         return {
           id: user.id,
           email: user.email,
           role: user.role,
           name: user.name,
+          clientId,
         };
       }
     })
@@ -57,6 +99,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.clientId = (user as any).clientId ?? null;
       }
       return token;
     },
@@ -64,6 +107,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        (session.user as any).clientId = token.clientId ?? null;
       }
       return session;
     }

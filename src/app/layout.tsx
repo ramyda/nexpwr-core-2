@@ -14,9 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Solar Anomaly Admin",
-  description: "Solar panel inspection and marking dashboard.",
+  title: "NexPwr | Energy Intelligence",
+  description: "Advanced asset management and anomaly detection for the solar enterprise.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  }
 };
+
 
 export default function RootLayout({
   children,
@@ -27,6 +32,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

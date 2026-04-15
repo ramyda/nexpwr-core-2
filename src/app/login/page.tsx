@@ -4,6 +4,7 @@ import { signIn, getSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { NexpwrLogo } from "@/components/icons/NexpwrLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,11 +47,11 @@ export default function LoginPage() {
       <div className="w-full max-w-[400px] border border-zinc-900 bg-zinc-950 p-8 rounded-lg shadow-2xl">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <div className="w-10 h-10 rounded bg-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-            <span className="font-bold text-white tracking-widest text-sm">NP</span>
+          <div className="flex justify-center mb-6">
+            <NexpwrLogo size={60} />
           </div>
-          <h1 className="text-xl font-semibold text-zinc-100">Sign in to NexPwr</h1>
-          <p className="text-sm text-zinc-500 mt-2">Enter your credentials to access your workspace</p>
+          <h1 className="text-2xl font-bold text-zinc-100 italic tracking-tight">Nexpwr</h1>
+          <p className="text-sm text-zinc-500 mt-2">Energy intelligence for the solar enterprise.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

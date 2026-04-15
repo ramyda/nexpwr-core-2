@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { runCalculationForInspection } from "@/lib/calculationEngine";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -72,6 +73,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Trigger calculation engine asynchronously (non-blocking)
+    runCalculationForInspection(inspectionId).catch((e) =>
+      console.error("[annotations/POST] calculation failed:", e)
+    );
+
     return NextResponse.json(annotation, { status: 201 });
   } catch (error: any) {
     console.error("Failed to create annotation:", error);
@@ -94,6 +100,14 @@ export async function PUT(req: NextRequest) {
       where: { id },
       data,
     });
+
+    // Trigger calculation engine asynchronously (non-blocking)
+    if (annotation.inspectionId) {
+      runCalculationForInspection(annotation.inspectionId).catch((e) =>
+        console.error("[annotations/PUT] calculation failed:", e)
+      );
+    }
+
     return NextResponse.json(annotation);
   } catch (error: any) {
     console.error("Failed to update annotation:", error);

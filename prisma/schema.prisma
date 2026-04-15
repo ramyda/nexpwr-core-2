@@ -20,6 +20,10 @@ model User {
   emailVerified  DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  // Links a CLIENT user to their organization
+  clientId       String?
+  client         Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
 }
 
 model Invite {
@@ -30,6 +34,10 @@ model Invite {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  // Pre-associates invite with an organization
+  clientId  String?
+  client    Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model Client {
@@ -40,13 +48,16 @@ model Client {
   phone          String?
   address        String?
   notes          String?
+  plan           String    @default("Pro") // Pro, Enterprise, etc.
   isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  users          User[]
   sites          Site[]
   inspections    Inspection[]
   annotations    Annotation[]
   reports        Report[]
+  invites        Invite[]
 }
 
 model Site {
@@ -74,6 +85,7 @@ model Site {
   // Site Identification
   latitude         Float?
   longitude        Float?
+  geofencePolygon  Json?   // GeoJSON polygon for boundary validation
   commissioningDate DateTime?
   siteOwner        String?
   omContractor     String?
@@ -142,6 +154,7 @@ model Site {
   inspections      Inspection[]
   annotations      Annotation[]
   reports          Report[]
+  metrics          SiteMetric[]
 }
 
 model Inspection {
@@ -170,11 +183,13 @@ model Inspection {
   visualFilePath   String?
   thermalPreviewUrl String?
   
-  status           String     @default("DRAFT") // DRAFT, UPLOADED, IN_PROGRESS, COMPLETE, PUBLISHED
+  // DRAFT | UPLOADED | IN_PROGRESS | CALCULATED | PUBLISHED
+  status           String     @default("DRAFT")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   annotations      Annotation[]
   reports          Report[]
+  metrics          SiteMetric[]
 }
 
 model Annotation {
@@ -197,12 +212,55 @@ model Annotation {
   notes            String?
   lat              Float?
   lng              Float?
-  polygonPoints    Json?      // Storing as JSON
+  polygonPoints    Json?      // Storing as JSON array of [lat, lng] pairs
   pixelCount       Int?
-  status           String     @default("OPEN") // OPEN, RESOLVED
+
+  // OPEN | RESOLVED | FALSE_POSITIVE | IN_PROGRESS | NOT_FOUND
+  status           String     @default("OPEN")
+
+  // Calculated by the engine after annotation is saved
+  lossResults      Json?      // { specificPowerLossKwp, annualRevenueLoss, lossFactor, severityLabel }
+  calculatedAt     DateTime?
   
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
+}
+
+/// Rolled-up site-level metrics per inspection — updated by the calculation engine
+model SiteMetric {
+  id                String     @id @default(uuid())
+  siteId            String
+  site              Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  inspectionId      String
+  inspection        Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  totalPowerLossKwp Float      @default(0)
+  totalRevenueLoss  Float      @default(0)
+  totalAnomalyCount Int        @default(0)
+
+  // Severity breakdown
+  criticalCount     Int        @default(0)
+  moderateCount     Int        @default(0)
+  minorCount        Int        @default(0)
+  notSignificantCount Int      @default(0)
+
+  // Status breakdown
+  pendingCount      Int        @default(0)
+  resolvedCount     Int        @default(0)
+  inProgressCount   Int        @default(0)
+  falsePositiveCount Int       @default(0)
+  notFoundCount     Int        @default(0)
+
+  // IEC CoA breakdown
+  iecClassA         Int        @default(0) // ΔT ≥ 20°C
+  iecClassB         Int        @default(0) // 10°C ≤ ΔT < 20°C
+  iecClassC         Int        @default(0) // 3°C ≤ ΔT < 10°C
+  iecClassD         Int        @default(0) // ΔT < 3°C (not significant)
+
+  calculatedAt      DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@unique([siteId, inspectionId])
 }
 
 model Report {
@@ -226,6 +284,7 @@ model Report {
   
   createdAt         DateTime   @default(now())
 }
+
 model Setting {
   id        String   @id @default(uuid())
   key       String   @unique
