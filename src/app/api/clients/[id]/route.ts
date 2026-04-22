@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma"; // NO CURLY BRACES - DEFAULT IMPORT
+import { getClientWithFullContext } from "@/lib/thermography/getClientWithFullContext";
 
 export async function GET(
   request: Request,
@@ -10,23 +11,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const client = await prisma.client.findUnique({
-      where: { id },
-      include: {
-        sites: {
-          include: {
-            inspections: {
-              orderBy: { date: 'desc' },
-              include: {
-                anomalies: {
-                  select: { iecClass: true }
-                }
-              }
-            }
-          }
-        }
-      }
-    });
+    const client = await getClientWithFullContext(id);
 
     if (!client) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
@@ -34,7 +19,7 @@ export async function GET(
 
     return NextResponse.json(client);
   } catch (error: any) {
-    console.error(`Error fetching client ${params.id}:`, error);
+    console.error(`Error fetching client:`, error);
     return NextResponse.json(
       { error: "Failed to fetch client" },
       { status: 500 }
@@ -66,7 +51,7 @@ export async function PATCH(
 
     return NextResponse.json(updatedClient);
   } catch (error: any) {
-    console.error(`Error updating client ${id}:`, error);
+    console.error(`Error updating client:`, error);
     return NextResponse.json(
       { error: error.message || "Failed to update client" },
       { status: 500 }
@@ -80,7 +65,7 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role?.toLowerCase() !== "admin") {
+    if (!session || (session.user as any)?.role?.toLowerCase() !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

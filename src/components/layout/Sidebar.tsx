@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Activity, PenTool, FileText, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Settings, LogOut, Thermometer } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { ClientSwitcher } from "./ClientSwitcher";
 import { useActiveClient } from "@/lib/context/ActiveClientContext";
 import { NexpwrLogo } from "@/components/icons/NexpwrLogo";
+import { GlobalSearch } from "@/components/layout/GlobalSearch";
 
 
 import { 
@@ -25,13 +26,6 @@ export function Sidebar() {
   const { data: session } = useSession();
   const { activeClient, activeSite, activeInspection } = useActiveClient();
 
-  const getAnnotationsHref = () => {
-    if (activeInspection) return `/admin/workspace/${activeInspection.id}`;
-    if (activeSite) return `/admin/inspections?site_id=${activeSite.id}`;
-    if (activeClient) return `/admin/inspections?client_id=${activeClient.id}`;
-    return "/admin/annotations";
-  };
-
   const getReportsHref = () => {
     if (activeSite) return `/admin/reports?site_id=${activeSite.id}`;
     if (activeClient) return `/admin/reports?client_id=${activeClient.id}`;
@@ -41,8 +35,7 @@ export function Sidebar() {
   const navItems = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Clients", href: "/admin/clients", icon: Users },
-    { name: "Inspections", href: "/admin/inspections", icon: Activity },
-    { name: "Annotations", href: getAnnotationsHref(), icon: PenTool },
+    { name: "Thermography", href: "/admin/thermography", icon: Thermometer },
     { name: "Reports", href: getReportsHref(), icon: FileText },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
@@ -57,8 +50,10 @@ export function Sidebar() {
 
       <ClientSwitcher />
 
+      <GlobalSearch />
+
       {/* Nav */}
-      <nav className="flex-1 px-4 space-y-1 mt-6">
+      <nav className="flex-1 px-4 space-y-1">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href.split('?')[0]);
           return (

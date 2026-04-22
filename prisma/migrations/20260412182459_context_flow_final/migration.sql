@@ -32,7 +32,7 @@ CREATE TABLE "Client" (
     "company" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT,
-    "address" TEXT,
+    "address" TEXT,blob:https://gemini.google.com/a46af8da-1acc-4edc-a52f-33f7671721e9
     "notes" TEXT,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

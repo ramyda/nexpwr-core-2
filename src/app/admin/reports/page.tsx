@@ -14,6 +14,7 @@ type Report = {
   pdfUrl: string | null; 
   csvUrl: string | null;
   kmlUrl: string | null;
+  published: boolean;
   publishedToClient: boolean;
   createdAt: string;
   generatedAt: string | null;
@@ -54,22 +55,24 @@ export default function ReportsPage() {
     loadReports();
   }, [loadReports]);
 
-  const handlePublish = async (report: Report) => {
+  const handlePublishToggle = async (report: Report, isUnpublish: boolean) => {
     setActionId(report.id);
     try {
       const res = await fetch(`/api/reports/${report.id}/publish`, {
-        method: "POST",
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: isUnpublish ? "unpublish" : "publish" })
       });
 
       if (res.ok) {
-        success("Report published and email sent to client.");
+        success(isUnpublish ? "Report unpublished successfully." : "Report published and email sent to client.");
         loadReports();
       } else {
         const data = await res.json();
-        error(data.error || "Failed to publish report.");
+        error(data.error || "Failed to update report status.");
       }
     } catch (err) {
-      error("Publishing failed. Check logs.");
+      error("Operation failed. Check logs.");
     } finally {
       setActionId(null);
     }
@@ -101,7 +104,7 @@ export default function ReportsPage() {
                 <th className="px-6 py-4 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">Inspection</th>
                 <th className="px-6 py-4 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">Status</th>
                 <th className="px-6 py-4 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">Generated</th>
-                <th className="px-6 py-4 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">Published</th>
+                <th className="px-6 py-4 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-nowrap">Portal Status</th>
                 <th className="px-6 py-4 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-right">Downloads</th>
               </tr>
             </thead>
@@ -152,20 +155,36 @@ export default function ReportsPage() {
                     {r.generatedAt ? new Date(r.generatedAt).toLocaleDateString() : "Pending"}
                   </td>
                   <td className="px-6 py-5">
-                    {r.publishedToClient ? (
-                      <div className="flex items-center gap-2 text-emerald-600">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span className="text-[12px] font-bold uppercase tracking-widest italic">Live</span>
+                    {r.published || r.publishedToClient ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span className="text-[11px] font-bold uppercase tracking-widest">
+                            Published
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handlePublishToggle(r, true)}
+                          disabled={actionId === r.id}
+                          className="px-2 py-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                        >
+                          {actionId === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Unpublish"}
+                        </button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => handlePublish(r)}
-                        disabled={actionId === r.id || r.status !== "READY"}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-900 border-zinc-200 hover:bg-zinc-900 hover:text-white transition-all text-[11px] font-bold uppercase tracking-widest disabled:opacity-30 shadow-sm"
-                      >
-                        {actionId === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                        Publish
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 px-2.5 py-1 rounded-md bg-zinc-100 border border-zinc-200">
+                          Draft
+                        </span>
+                        <button
+                          onClick={() => handlePublishToggle(r, false)}
+                          disabled={actionId === r.id || r.status !== "READY"}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 bg-white text-zinc-900 border-zinc-200 hover:bg-zinc-900 hover:text-white transition-all text-[11px] font-bold uppercase tracking-widest disabled:opacity-30 shadow-sm"
+                        >
+                          {actionId === r.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                          Publish
+                        </button>
+                      </div>
                     )}
                   </td>
                   <td className="px-6 py-5 text-right">

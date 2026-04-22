@@ -3,18 +3,19 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   // Placeholder for listing invites for a specific client
   return NextResponse.json({ invites: [] });
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Placeholder for creating a new invite for a specific client
-  const { id } = params;
+  const { id } = await params;
   const body = await request.json();
   
   return NextResponse.json({ 
